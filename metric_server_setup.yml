@@ -27,14 +27,14 @@
 
   - name: Create namespace for metrics-server
     kubernetes.core.k8s:
-      kubeconfig: /home/ubuntu/.kube/kubeconfig
+      kubeconfig: /home/ubuntu/config
       context: kubernetes-admin@cluster.local
       kind: Namespace
       name: metrics
 
   - name: Install metrics-server
     kubernetes.core.helm:
-      kubeconfig: /home/ubuntu/.kube/kubeconfig
+      kubeconfig: /home/ubuntu/config
       kube_context: kubernetes-admin@cluster.local
       name: metrics-server
       chart_ref: bitnami/metrics-server
