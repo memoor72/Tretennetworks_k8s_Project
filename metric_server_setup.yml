@@ -1,5 +1,6 @@
 - name: Install metrics-server using Helm
-  hosts: kube_master
+  hosts: localhost
+  gather_facts: no
   tasks:
 
   - name: Install Helm
@@ -22,20 +23,18 @@
 
   - name: Add bitnami repository and update Helm repo
     command: bash -c "helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update"
-    delegate_to: localhost
     become: no
 
   - name: Create namespace for metrics-server
     kubernetes.core.k8s:
+      kubeconfig: /home/ubuntu/.kube/kubeconfig
+      context: kubernetes-admin@cluster.local
       kind: Namespace
       name: metrics
-    delegate_to: localhost
-    become: no
 
   - name: Install metrics-server
-    delegate_to: localhost
-    become: no
     kubernetes.core.helm:
+      kubeconfig: /home/ubuntu/.kube/kubeconfig
       kube_context: kubernetes-admin@cluster.local
       name: metrics-server
       chart_ref: bitnami/metrics-server
