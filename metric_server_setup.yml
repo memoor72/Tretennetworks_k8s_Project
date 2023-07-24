@@ -1,14 +1,8 @@
 - name: Install metrics-server using Helm
   hosts: localhost
   gather_facts: no
-  vars:
-    ansible_python_interpreter: /opt/ansible-k8s-venv/bin/python # Add the path to the Python interpreter in the virtual environment.
   tasks:
-  - name: Create a Python virtual environment and install the Kubernetes Python library
-    shell: |
-      python3 -m venv /opt/ansible-k8s-venv
-      /opt/ansible-k8s-venv/bin/pip install kubernetes
-    become: yes
+
 
   - name: Install Helm
     get_url:
