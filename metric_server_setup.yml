@@ -1,9 +1,9 @@
 - name: Install metrics-server using Helm
   hosts: localhost
+  vars:
+    ansible_python_interpreter: /opt/ansible-k8s-venv/bin/python
   gather_facts: no
   tasks:
-
-
   - name: Install Helm
     get_url:
       url: https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz
@@ -42,7 +42,6 @@
       release_namespace: kube-system
       set_values:
       - "apiService.create=true"
-
 
 
 
