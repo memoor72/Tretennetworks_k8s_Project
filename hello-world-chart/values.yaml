@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: hello-world-app
+  repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -37,9 +37,8 @@ securityContext: {}
 # runAsUser: 1000
 
 service:
-  type: LoadBalancer
+  type: NodePort
   port: 80
-  targetPort: 5000
 
 ingress:
   enabled: false

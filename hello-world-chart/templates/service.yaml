@@ -8,8 +8,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8080
       protocol: TCP
+      nodePort: 31000
       name: http
   selector:
     {{- include "hello-world-chart.selectorLabels" . | nindent 4 }}
