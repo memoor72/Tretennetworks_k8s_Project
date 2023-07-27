@@ -2,6 +2,11 @@
   hosts: k8s_nodes
   become: yes
   tasks:
+  - name: Unhold Kubernetes related packages
+    command:
+      cmd: apt-mark unhold kubeadm kubectl kubelet kubernetes-cni
+    ignore_errors: true
+
   - name: Purge Kubernetes related packages
     apt:
       name:
