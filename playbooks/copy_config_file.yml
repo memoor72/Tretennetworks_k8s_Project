@@ -1,5 +1,5 @@
-- name: Copy Kubeconfig files to worker nodes
-  hosts: kube_node
+- name: Copy Kubeconfig files to nodes
+  hosts: bastion_node
   gather_facts: yes
   vars:
     master_node: master-node-0
@@ -22,13 +22,13 @@
       state: directory
     become: yes
 
-  - name: Copy kubeconfig to worker nodes
+  - name: Copy kubeconfig to nodes
     copy:
       src: "{{ tmp_kubeconfig }}"
       dest: "{{ kubeconfig_dest }}"
     become: yes
 
-  - name: Check if kubeconfig exists on worker nodes
+  - name: Check if kubeconfig exists on  nodes
     stat:
       path: "{{ kubeconfig_dest }}"
     become: yes

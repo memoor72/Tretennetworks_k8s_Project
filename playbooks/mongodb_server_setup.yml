@@ -1,0 +1,76 @@
+- hosts: kube_db
+  become: yes
+  vars_files:
+  - groups_vars
+
+  tasks:
+  - name: Update the system's package list
+    apt:
+      update_cache: yes
+    become: yes
+
+  - name: Upgrade all the system's packages
+    apt:
+      upgrade: 'yes'
+    become: yes
+
+  - name: install libssl1.1
+    apt:
+      name: libssl1.1
+      state: present
+    become: yes
+
+  - name: Ensure pip is installed
+    apt:
+      name: python3-pip
+      state: present
+      update_cache: yes
+
+  - name: Install pymongo
+    pip:
+      name: pymongo
+      state: present
+
+  - name: Import the public key used by the package management system
+    apt_key:
+      url: https://www.mongodb.org/static/pgp/server-4.4.asc
+      state: present
+    become: yes
+
+  - name: Add MongoDB repository
+    apt_repository:
+      repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/{{ mongodb_version }} multiverse"
+      state: present
+    become: yes
+
+  - name: Install MongoDB server
+    apt:
+      name: mongodb-org
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Ensure MongoDB data directory exists
+    file:
+      path: "{{ mongodb_data_dir }}"
+      state: directory
+      owner: mongodb
+      group: mongodb
+      mode: 0700
+    become: yes
+
+  - name: Update MongoDB configuration file to use separate partition
+    replace:
+      path: /etc/mongod.conf
+      regexp: 'dbPath: /var/lib/mongodb'
+      replace: "dbPath: {{ mongodb_data_dir }}"
+    become: yes
+
+  - name: Start and enable MongoDB server
+    systemd:
+      name: mongod
+      state: restarted
+      enabled: true
+    become: yes
+
+

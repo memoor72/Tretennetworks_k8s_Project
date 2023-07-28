@@ -1,0 +1,152 @@
+- name: Install and setup MySQL server
+  hosts: kube_mysql
+  vars_files:
+  - vars.yml
+  - groups_vars
+  become: yes
+
+  tasks:
+  - name: Include variables
+    include_vars: vars.yml
+
+  - name: Install necessary software
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+    loop:
+    - software-properties-common
+    - python3-pymysql
+
+  - name: Add missing MySQL APT repository key
+    ansible.builtin.apt_key:
+      id: 467B942D3A79BD29
+      keyserver: keyserver.ubuntu.com
+    become: yes
+
+  - name: Add MySQL APT repository
+    apt_repository:
+      repo: 'deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-8.0'
+      state: present
+
+  - name: Clean APT cache
+    apt:
+      update_cache: yes
+      autoclean: yes
+    become: yes
+
+  - name: Fix broken installs
+    command: apt-get install -f
+    become: yes
+
+  - name: Update all packages to the latest version
+    apt:
+      upgrade: yes
+    become: yes
+
+  - name: Install libssl-dev
+    apt:
+      name: libssl-dev
+      state: present
+    become: yes
+
+
+
+  - name: Install mysql-community-client
+    apt:
+      name: mysql-community-client
+      state: present
+    become: yes
+
+  - name: Install mysql-community-server-core
+    apt:
+      name: mysql-community-server-core
+      state: present
+    become: yes
+
+  - name: Install MySQL Server
+    apt:
+      name: mysql-server
+      state: present
+      update_cache: yes
+
+  - name: Start MySQL service
+    systemd:
+      name: mysql
+      state: started
+      enabled: yes
+
+  - name: Change MySQL root user password on first run and apply mysql_native_password
+    mysql_user:
+      login_user: root
+      login_password: ""
+      name: root
+      password: "{{ mysql_root_password }}"
+      host_all: yes
+      priv: "*.*:ALL,GRANT"
+      plugin: mysql_native_password
+    no_log: true
+    ignore_errors: yes
+
+  - name: Stop MySQL service before changing data directory
+    systemd:
+      name: mysql
+      state: stopped
+
+  - name: Create MySQL data directory parent
+    file:
+      path: "/mnt/data"
+      state: directory
+      mode: '0755'
+    become: true
+
+
+  - name: Mount NFS share on MySQL data directory
+    mount:
+      path: "/mnt/data"
+      src: "{{ nfs_server_ip }}:{{ nfs_exported_dir }}"
+      fstype: nfs
+      state: mounted
+
+  - name: Ensure MySQL data directory exists
+    file:
+      path: /mnt/data/mysql
+      state: directory
+    become: yes
+
+  - name: Create MySQL data directory
+    file:
+      path: "{{ mysql_data_dir }}"
+      state: directory
+      owner: mysql
+      group: mysql
+      mode: '0700'
+    become: yes
+
+  - name: Change MySQL data directory in MySQL config
+    replace:
+      path: "{{ mysql_config_file }}"
+      regexp: 'datadir\s+=\s+/var/lib/mysql'
+      replace: "datadir = {{ mysql_data_dir }}"
+
+  - name: Copy MySQL data to new data directory
+    synchronize:
+      src: /var/lib/mysql/
+      dest: /mnt/data/mysql/
+      recursive: yes
+    delegate_to: "{{ inventory_hostname }}"
+    become: yes
+
+
+  - name: Start MySQL service
+    systemd:
+      name: mysql
+      state: started
+      enabled: true
+
+  handlers:
+  - name: restart mysql
+    systemd:
+      name: mysql
+      state: restarted
+    become: true
