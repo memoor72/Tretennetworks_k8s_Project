@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1alpha1
+kind: AddressRange
+metadata:
+  name: my-address-range
+spec:
+  protocol: layer2
+  range:
+  - start: 10.0.0.150
+    end: 10.0.0.200
+  autoAssign: true
