@@ -1,10 +1,14 @@
-apiVersion: metallb.io/v1alpha1
-kind: AddressRange
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
 metadata:
-  name: my-address-range
+  name: Treten-test
+  namespace: metallb-system
 spec:
-  protocol: layer2
-  range:
-  - start: 10.0.0.150
-    end: 10.0.0.200
-  autoAssign: true
+  addresses:
+  - 192.168.1.30-192.168.1.50
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advert
+  namespace: metallb-system
