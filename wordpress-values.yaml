@@ -6,6 +6,8 @@ mariadb:
       size: 8Gi
 
 persistence:
-  storageClass: "nfs-storage"
+  enabled: true
+  storageClass: "nfs-client" # Use the nfs-client StorageClass
   accessMode: ReadWriteOnce
   size: 8Gi
+
