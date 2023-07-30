@@ -1,6 +1,11 @@
-persistence:
-  storageClass: nfs-storage
 mariadb:
   primary:
     persistence:
-      storageClass: nfs-storage
+      storageClass: "nfs-storage"
+      accessMode: ReadWriteOnce
+      size: 8Gi
+
+persistence:
+  storageClass: "nfs-storage"
+  accessMode: ReadWriteOnce
+  size: 8Gi
