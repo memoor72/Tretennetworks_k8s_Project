@@ -1,0 +1,6 @@
+persistence:
+  storageClass: nfs-storage
+mariadb:
+  primary:
+    persistence:
+      storageClass: nfs-storage
